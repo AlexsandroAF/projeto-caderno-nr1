@@ -8,8 +8,10 @@ metadata:
     app.kubernetes.io/component: ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    # ssl-redirect (sem o force-) respeita a exceção do path /.well-known/acme-challenge/
+    # que o Let's Encrypt precisa atingir via HTTP. Após o cert ser emitido,
+    # tudo é redirecionado naturalmente para HTTPS.
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     # privacidade: zero access log no nginx-ingress (sem IP, UA, referer ou path)
     # error_log permanece ativo para diagnóstico de falhas
     nginx.ingress.kubernetes.io/enable-access-log: "false"
