@@ -10,6 +10,9 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # privacidade: zero access log no nginx-ingress (sem IP, UA, referer ou path)
+    # error_log permanece ativo para diagnóstico de falhas
+    nginx.ingress.kubernetes.io/enable-access-log: "false"
     # sendBeacon envia application/json — payload pequeno, sem upload de arquivos
     nginx.ingress.kubernetes.io/proxy-body-size: "256k"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "30"

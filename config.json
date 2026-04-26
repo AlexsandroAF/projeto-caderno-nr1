@@ -10,7 +10,7 @@
     "use_implicit_page": true,
     "implicit_page": "index.html",
     "log": {
-      "log_level": "INFO"
+      "log_level": "WARN"
     }
   },
   "db_clients": [
