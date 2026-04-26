@@ -1,0 +1,33 @@
+# build artifacts
+build/
+out/
+cmake-build-*/
+
+# editors / IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# secrets / local
+.env
+.env.local
+*.local.yml
+*.local.yaml
+
+# logs
+*.log
+
+# data
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# docker
+docker-compose.override.yml
