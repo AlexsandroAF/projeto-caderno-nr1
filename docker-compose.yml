@@ -1,0 +1,15 @@
+services:
+  caderno:
+    build: .
+    container_name: caderno
+    ports:
+      - "8088:80"
+    volumes:
+      - caderno-db:/data
+      # uncomment for live frontend reload during dev
+      # (no rebuild needed when editing public/*):
+      # - ./public:/app/public:ro
+    restart: unless-stopped
+
+volumes:
+  caderno-db:

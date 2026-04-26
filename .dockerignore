@@ -1,0 +1,13 @@
+.git
+.gitignore
+.vscode
+.idea
+node_modules
+build
+*.log
+*.db
+*.sqlite
+*.sqlite3
+.DS_Store
+Thumbs.db
+docker-compose.override.yml

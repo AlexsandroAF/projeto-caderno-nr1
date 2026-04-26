@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4ede0" />
+  <meta name="description" content="Um caderno breve para observar como você está chegando." />
+  <meta name="referrer" content="no-referrer" />
+  <title>caderno · como você está?</title>
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="mask-icon" href="favicon.svg" color="#b8654a" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,30..100,0..1;1,9..144,300..900,30..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <header class="masthead" aria-hidden="true">
+    <span class="masthead__title">caderno</span>
+    <span class="masthead__rule"></span>
+    <span class="masthead__edition">edição um · pesquisa de campo</span>
+  </header>
+
+  <nav class="chapters" aria-label="progresso">
+    <ol>
+      <li class="chapter chapter--active" data-chapter="0"></li>
+      <li class="chapter" data-chapter="1"></li>
+      <li class="chapter" data-chapter="2"></li>
+      <li class="chapter" data-chapter="3"></li>
+      <li class="chapter" data-chapter="4"></li>
+      <li class="chapter" data-chapter="5"></li>
+      <li class="chapter" data-chapter="6"></li>
+    </ol>
+  </nav>
+
+  <main class="folio">
+
+    <!-- 0 — acolhida -->
+    <section class="leaf leaf--active leaf--welcome" data-step="0" aria-labelledby="welcome-h">
+      <p class="welcome__overline">para começar</p>
+      <h1 id="welcome-h" class="welcome__hed">
+        <em>antes de tudo,</em><br />respira.
+      </h1>
+      <svg class="welcome__breath" viewBox="0 0 200 4" aria-hidden="true">
+        <line x1="0" y1="2" x2="200" y2="2" />
+      </svg>
+      <p class="welcome__lede">
+        um caderno breve. sem nome, sem cobrança. dois ou três minutos para observar como você está&nbsp;chegando.
+      </p>
+      <button class="quill" type="button" data-action="next">
+        <span>começar</span>
+        <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+      </button>
+      <p class="welcome__fineprint">anônimo &middot; sem dados pessoais &middot; ~3 min</p>
+      <p class="welcome__return" hidden>
+        <span aria-hidden="true">&#x2726;</span>
+        <a href="coletivo.html" data-track="coletivo_return">ver o coletivo &mdash; acesso público</a>
+      </p>
+    </section>
+
+    <!-- 1 — humor -->
+    <section class="leaf" data-step="1" hidden aria-labelledby="q1-h">
+      <header class="leaf__head">
+        <span class="leaf__numeral">01</span>
+        <h2 id="q1-h" class="leaf__hed">como você <em>chega</em> aqui hoje?</h2>
+        <p class="leaf__lede">não pense demais. a primeira sensação serve.</p>
+      </header>
+      <fieldset class="ink-list" role="radiogroup" aria-labelledby="q1-h">
+        <label class="ink">
+          <input type="radio" name="q_mood" value="leve" />
+          <span class="ink__title">leve</span>
+          <span class="ink__gloss">como ar pela manhã</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_mood" value="estavel" />
+          <span class="ink__title">estável</span>
+          <span class="ink__gloss">como chão firme</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_mood" value="inquieto" />
+          <span class="ink__title">inquieto</span>
+          <span class="ink__gloss">como vento que não para</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_mood" value="pesado" />
+          <span class="ink__title">pesado</span>
+          <span class="ink__gloss">como névoa baixa</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_mood" value="apagado" />
+          <span class="ink__title">apagado</span>
+          <span class="ink__gloss">como brasa após a chuva</span>
+        </label>
+      </fieldset>
+      <nav class="leaf__nav">
+        <button class="quill quill--ghost" type="button" data-action="prev">
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6 H2 M8 0 L2 6 L8 12" /></svg>
+          <span>voltar</span>
+        </button>
+        <button class="quill" type="button" data-action="next">
+          <span>seguir</span>
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 2 — temas -->
+    <section class="leaf" data-step="2" hidden aria-labelledby="q2-h">
+      <header class="leaf__head">
+        <span class="leaf__numeral">02</span>
+        <h2 id="q2-h" class="leaf__hed">nas últimas semanas, <em>o que tem aparecido?</em></h2>
+        <p class="leaf__lede">pode escolher quantas quiser. ou nenhuma.</p>
+      </header>
+      <fieldset class="seeds" aria-label="o que tem aparecido">
+        <label class="seed"><input type="checkbox" name="q_themes" value="ansiedade" /><span>ansiedade</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="tristeza" /><span>tristeza</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="cansaco" /><span>cansaço</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="insonia" /><span>insônia</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="vazio" /><span>sensação de vazio</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="irritacao" /><span>irritação</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="medo" /><span>medo</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="solidao" /><span>solidão</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="relacoes" /><span>dificuldade nas relações</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="foco" /><span>falta de foco</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="interesse" /><span>perda de interesse</span></label>
+        <label class="seed"><input type="checkbox" name="q_themes" value="sentido" /><span>falta de sentido</span></label>
+      </fieldset>
+      <nav class="leaf__nav">
+        <button class="quill quill--ghost" type="button" data-action="prev">
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6 H2 M8 0 L2 6 L8 12" /></svg>
+          <span>voltar</span>
+        </button>
+        <button class="quill" type="button" data-action="next">
+          <span>seguir</span>
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 3 — tempo -->
+    <section class="leaf" data-step="3" hidden aria-labelledby="q3-h">
+      <header class="leaf__head">
+        <span class="leaf__numeral">03</span>
+        <h2 id="q3-h" class="leaf__hed">há quanto tempo <em>isso te acompanha?</em></h2>
+        <p class="leaf__lede">uma estimativa basta.</p>
+      </header>
+      <fieldset class="ink-list" role="radiogroup" aria-labelledby="q3-h">
+        <label class="ink">
+          <input type="radio" name="q_time" value="dias" />
+          <span class="ink__title">alguns dias</span>
+          <span class="ink__gloss">é recente</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_time" value="semanas" />
+          <span class="ink__title">algumas semanas</span>
+          <span class="ink__gloss">tem se repetido</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_time" value="meses" />
+          <span class="ink__title">alguns meses</span>
+          <span class="ink__gloss">já entrou no cotidiano</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_time" value="ano" />
+          <span class="ink__title">mais de um ano</span>
+          <span class="ink__gloss">é antigo conhecido</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_time" value="incerto" />
+          <span class="ink__title">preciso pensar</span>
+          <span class="ink__gloss">não sei dizer</span>
+        </label>
+      </fieldset>
+      <nav class="leaf__nav">
+        <button class="quill quill--ghost" type="button" data-action="prev">
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6 H2 M8 0 L2 6 L8 12" /></svg>
+          <span>voltar</span>
+        </button>
+        <button class="quill" type="button" data-action="next">
+          <span>seguir</span>
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 4 — palavra -->
+    <section class="leaf" data-step="4" hidden aria-labelledby="q4-h">
+      <header class="leaf__head">
+        <span class="leaf__numeral">04</span>
+        <h2 id="q4-h" class="leaf__hed">se pudesse <em>escolher uma palavra</em>, o que você procura aqui?</h2>
+        <p class="leaf__lede">escreva o que vier. pode pular.</p>
+      </header>
+      <div class="margin-note">
+        <input
+          type="text"
+          name="q_word"
+          class="margin-note__input"
+          placeholder="clareza, descanso, escuta…"
+          maxlength="40"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+        />
+        <span class="margin-note__rule"></span>
+        <span class="margin-note__hint">uma palavra · máx. 40 letras</span>
+      </div>
+      <nav class="leaf__nav">
+        <button class="quill quill--ghost" type="button" data-action="prev">
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6 H2 M8 0 L2 6 L8 12" /></svg>
+          <span>voltar</span>
+        </button>
+        <button class="quill" type="button" data-action="next">
+          <span>seguir</span>
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 5 — já buscou ajuda -->
+    <section class="leaf" data-step="5" hidden aria-labelledby="q5-h">
+      <header class="leaf__head">
+        <span class="leaf__numeral">05</span>
+        <h2 id="q5-h" class="leaf__hed">você já <em>conversou</em> com alguém sobre isso?</h2>
+      </header>
+      <fieldset class="ink-list" role="radiogroup" aria-labelledby="q5-h">
+        <label class="ink">
+          <input type="radio" name="q_help" value="sim_segue" />
+          <span class="ink__title">sim, e quero seguir</span>
+          <span class="ink__gloss">já tenho um caminho</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_help" value="sim_pausa" />
+          <span class="ink__title">sim, mas não deu certo</span>
+          <span class="ink__gloss">talvez tentar de outro jeito</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_help" value="nao" />
+          <span class="ink__title">não, é a primeira vez</span>
+          <span class="ink__gloss">tudo bem, é por aqui mesmo</span>
+        </label>
+        <label class="ink">
+          <input type="radio" name="q_help" value="pensando" />
+          <span class="ink__title">estou pensando</span>
+          <span class="ink__gloss">só observando por enquanto</span>
+        </label>
+      </fieldset>
+      <nav class="leaf__nav">
+        <button class="quill quill--ghost" type="button" data-action="prev">
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M24 6 H2 M8 0 L2 6 L8 12" /></svg>
+          <span>voltar</span>
+        </button>
+        <button class="quill" type="button" data-action="next">
+          <span>concluir</span>
+          <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+        </button>
+      </nav>
+    </section>
+
+    <!-- 6 — caminho -->
+    <section class="leaf leaf--final" data-step="6" hidden aria-labelledby="route-h">
+      <header class="leaf__head">
+        <span class="leaf__ornament" aria-hidden="true">&#x273A;</span>
+        <h2 id="route-h" class="leaf__hed">aqui está <em>um caminho.</em></h2>
+        <p class="leaf__lede">baseado no que você compartilhou.</p>
+      </header>
+      <article class="card-route" aria-live="polite">
+        <p class="card-route__kicker">indicação</p>
+        <h3 class="card-route__title" id="route-title">plantão psicológico</h3>
+        <p class="card-route__body" id="route-body">um espaço de escuta, gratuito, sem agendamento — atende em horário comercial no campus.</p>
+        <p class="card-route__meta" id="route-meta">aberto a todos &middot; sem inscrição prévia</p>
+        <div class="card-route__actions">
+          <a href="#contato" class="quill" id="route-cta" data-track="route_cta">
+            <span>conversar agora</span>
+            <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+          </a>
+          <button class="quill quill--ghost" type="button" data-action="restart">
+            <span>recomeçar</span>
+          </button>
+        </div>
+        <p class="card-route__share">
+          <span class="card-route__share-mark" aria-hidden="true">&#x2726;</span>
+          <span>os dados desta pesquisa são públicos.</span>
+          <a href="coletivo.html" data-track="coletivo_link">ver o coletivo &rarr;</a>
+        </p>
+      </article>
+      <p class="closing">obrigado por <em>se ouvir.</em></p>
+    </section>
+
+  </main>
+
+  <footer class="dust">
+    <span class="dust__mark" aria-hidden="true">&#x2726;</span>
+    <p>anônimo · medimos apenas interações, nunca você</p>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>

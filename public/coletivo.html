@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4ede0" />
+  <meta name="description" content="O coletivo — dados públicos da pesquisa de campo." />
+  <meta name="referrer" content="no-referrer" />
+  <title>caderno · coletivo</title>
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="mask-icon" href="favicon.svg" color="#b8654a" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,30..100,0..1;1,9..144,300..900,30..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="body--bulletin">
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <a href="index.html" class="masthead__title masthead__title--link">caderno</a>
+    <span class="masthead__rule"></span>
+    <span class="masthead__edition">coletivo &middot; <time id="updated">—</time></span>
+  </header>
+
+  <main class="folio folio--wide">
+
+    <section class="bulletin-lede">
+      <p class="bulletin__overline">o que carregamos juntos</p>
+      <h1 class="bulletin__hed">
+        desde <em>abril</em>,<br />
+        <span class="bulletin__count" id="total-count">—</span> pessoas<br />
+        se ouviram aqui.
+      </h1>
+      <p class="bulletin__lede">
+        cada uma anônima.<br />
+        cada interação um traço. nada mais que isso, nada menos.
+      </p>
+    </section>
+
+    <section class="bulletin">
+      <h2 class="bulletin__section">como chegam</h2>
+      <p class="bulletin__sub">distribuição do humor de chegada</p>
+      <div class="bars" id="bars-mood"></div>
+    </section>
+
+    <section class="bulletin">
+      <h2 class="bulletin__section">o que aparece</h2>
+      <p class="bulletin__sub">temas mais marcados nas últimas semanas</p>
+      <ol class="top-list" id="top-themes"></ol>
+    </section>
+
+    <section class="bulletin">
+      <h2 class="bulletin__section">quando se ouvem</h2>
+      <p class="bulletin__sub">horas do dia em que as pessoas chegam</p>
+      <div class="ribbon" id="ribbon-hours" aria-hidden="true"></div>
+      <ol class="ribbon-axis" aria-hidden="true">
+        <li>00h</li><li>06h</li><li>12h</li><li>18h</li>
+      </ol>
+    </section>
+
+    <section class="bulletin">
+      <h2 class="bulletin__section">caminhos</h2>
+      <p class="bulletin__sub">para onde a escuta foi direcionada</p>
+      <div class="bars" id="bars-routes"></div>
+    </section>
+
+    <p class="bulletin__footnote">
+      apenas interações: humor, temas, hora e fuso. nunca conteúdo de texto livre. nunca identificação. atualização diária.
+    </p>
+
+    <nav class="bulletin__nav">
+      <a href="index.html" class="quill">
+        <span>abrir o caderno</span>
+        <svg viewBox="0 0 24 12" aria-hidden="true"><path d="M0 6 H22 M16 0 L22 6 L16 12" /></svg>
+      </a>
+    </nav>
+
+  </main>
+
+  <footer class="dust">
+    <span class="dust__mark" aria-hidden="true">&#x2726;</span>
+    <p>dados de domínio público &middot; cc by-sa 4.0</p>
+  </footer>
+
+  <script src="js/coletivo.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "listeners": [
+    { "address": "0.0.0.0", "port": 80, "https": false }
+  ],
+  "app": {
+    "threads_num": 0,
+    "document_root": "./public",
+    "max_connections": 10000,
+    "max_connections_per_ip": 0,
+    "use_implicit_page": true,
+    "implicit_page": "index.html",
+    "log": {
+      "log_level": "INFO"
+    }
+  },
+  "db_clients": [
+    {
+      "name": "default",
+      "rdbms": "sqlite3",
+      "filename": "/data/caderno.db",
+      "is_fast": false,
+      "connection_number": 1
+    }
+  ]
+}
