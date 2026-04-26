@@ -40,6 +40,9 @@
 
   // ----------------------------------------------------------------- helpers
 
+  const reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   function span(cls, text) {
     const s = document.createElement('span');
     s.className = cls;
@@ -61,6 +64,43 @@
     const v = Number(n);
     if (!Number.isFinite(v)) return 0;
     return Math.max(0, Math.min(100, Math.round(v)));
+  }
+
+  function fmtNumber(n) {
+    return Number(n).toLocaleString('pt-BR');
+  }
+
+  function fmtDate(iso) {
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '—';
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    } catch (_) {
+      return '—';
+    }
+  }
+
+  // count from 0 → to with ease-out cubic; duration scales with magnitude
+  function animateCount(el, to) {
+    if (typeof to !== 'number' || !Number.isFinite(to) || to <= 0) {
+      el.textContent = '0';
+      return;
+    }
+    if (reduceMotion) {
+      el.textContent = fmtNumber(to);
+      return;
+    }
+    const duration = Math.min(1800, Math.max(700, to * 60));
+    const start = performance.now();
+    function tick(now) {
+      const e = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - e, 3);
+      el.textContent = fmtNumber(Math.floor(eased * to));
+      if (e < 1) requestAnimationFrame(tick);
+      else el.textContent = fmtNumber(to);
+    }
+    el.textContent = '0';
+    requestAnimationFrame(tick);
   }
 
   // ----------------------------------------------------------------- builders
@@ -105,22 +145,17 @@
     return tick;
   }
 
-  function fmtDate(iso) {
-    try {
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return '—';
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-    } catch (_) {
-      return '—';
-    }
-  }
-
   // ----------------------------------------------------------------- render
 
-  function render(data) {
-    const total = Number(data.total) || 0;
-    document.getElementById('total-count').textContent =
-      total.toLocaleString('pt-BR');
+  function renderEmpty(data) {
+    document.querySelector('.bulletin-lede').hidden = true;
+    const empty = document.querySelector('.bulletin-lede--empty');
+    if (empty) empty.hidden = false;
+    document.body.classList.add('is-empty');
+  }
+
+  function renderFull(data, total) {
+    animateCount(document.getElementById('total-count'), total);
 
     const updated = document.getElementById('updated');
     updated.textContent = 'atualizado ' + fmtDate(data.updated);
@@ -147,6 +182,15 @@
     (data.routes || []).forEach((r, i) =>
       routesWrap.appendChild(makeBar(r, 'var(--terra)', 80 * i))
     );
+  }
+
+  function render(data) {
+    const total = Number(data && data.total) || 0;
+    if (total === 0) {
+      renderEmpty(data);
+      return;
+    }
+    renderFull(data, total);
   }
 
   function load() {

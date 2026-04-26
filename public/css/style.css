@@ -1084,3 +1084,22 @@ section.bulletin:nth-of-type(5) { animation-delay: 0.75s; }
 
   .ribbon { height: 4.5rem; }
 }
+
+/* =========================================================================
+   coletivo · empty state (when total = 0)
+   ========================================================================= */
+.bulletin-lede--empty {
+  animation: leaf-in 0.9s 0.05s var(--ease-leaf) both;
+}
+.bulletin-lede--empty .welcome__breath {
+  margin: 1.5rem 0 1.75rem;
+  max-width: 12rem;
+}
+.bulletin-lede--empty .bulletin__hed em {
+  color: var(--ink-soft);
+  font-variation-settings: 'opsz' 144, 'wght' 320, 'SOFT' 80, 'WONK' 1;
+}
+
+body.is-empty .bulletin             { display: none; }
+body.is-empty .bulletin__footnote   { display: none; }
+body.is-empty .masthead__edition    { visibility: hidden; }
