@@ -28,6 +28,8 @@ desktop.ini
 *.sqlite
 *.sqlite3
 data/
+.env
+tools/
 
 # docker
 docker-compose.override.yml
