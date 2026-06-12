@@ -31,3 +31,6 @@ data/
 
 # docker
 docker-compose.override.yml
+
+# reference docs (psychology group materials)
+doc_ref/

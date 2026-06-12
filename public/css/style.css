@@ -82,7 +82,7 @@ body::before {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 1.4rem var(--gutter) 0;
+  padding: max(1.4rem, env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left));
   font-family: var(--type-display);
   font-size: 0.7rem;
   letter-spacing: 0.22em;
@@ -119,7 +119,7 @@ body::before {
 .chapters {
   position: relative;
   z-index: 2;
-  padding: 1.25rem var(--gutter) 0;
+  padding: 1.25rem max(var(--gutter), env(safe-area-inset-right)) 0 max(var(--gutter), env(safe-area-inset-left));
 }
 .chapters ol {
   list-style: none;
@@ -148,7 +148,7 @@ body::before {
 .folio {
   position: relative;
   z-index: 1;
-  padding: 2rem var(--gutter) 4rem;
+  padding: 2rem max(var(--gutter), env(safe-area-inset-right)) 4rem max(var(--gutter), env(safe-area-inset-left));
   max-width: var(--leaf-max);
   margin: 0 auto;
   min-height: 70dvh;
@@ -586,6 +586,229 @@ body::before {
   80%      { transform: translateX(-2px); }
 }
 
+/* mirror question (a caixinha) ------------------------------------------- */
+.mirror-q {
+  position: relative;
+  border: 1px solid var(--ink-soft);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  padding: 1.5rem 1.5rem 1.4rem;
+  margin: 0 0 2rem;
+  font-family: var(--type-display);
+  font-style: italic;
+  font-size: clamp(1.3rem, 4.6vw, 1.7rem);
+  line-height: 1.22;
+  color: var(--ink);
+  font-variation-settings: 'opsz' 48, 'wght' 380, 'SOFT' 50, 'WONK' 1;
+  box-shadow: 0 10px 32px -26px rgba(28, 25, 23, 0.4);
+  animation: leaf-in 0.7s 0.1s var(--ease-leaf) both;
+}
+.mirror-q__tag {
+  display: block;
+  font-family: var(--type-display);
+  font-style: normal;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--terra);
+  margin-bottom: 0.85rem;
+  font-variation-settings: 'opsz' 14, 'wght' 480, 'SOFT' 0;
+}
+
+.facets__cue {
+  font-family: var(--type-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 1rem;
+  font-variation-settings: 'opsz' 14, 'wght' 400;
+}
+
+/* facets (clickable topics / accordion) ----------------------------------- */
+.facets {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+}
+.facet {
+  border-bottom: 1px solid var(--paper-edge);
+}
+.facet:first-child { border-top: 1px solid var(--paper-edge); }
+
+.facet__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0.25rem 1.1rem 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--type-display);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: padding 0.35s var(--ease-leaf);
+}
+.facet__name {
+  font-size: clamp(1.2rem, 4.2vw, 1.5rem);
+  line-height: 1.12;
+  font-variation-settings: 'opsz' 36, 'wght' 380, 'SOFT' 40;
+  transition: transform 0.35s var(--ease-leaf), color 0.3s ease;
+}
+.facet__name i {
+  font-style: italic;
+  color: var(--ink-faint);
+  font-variation-settings: 'opsz' 24, 'wght' 360, 'SOFT' 60, 'WONK' 1;
+}
+.facet__head:hover .facet__name { color: var(--moss-deep); transform: translateX(5px); }
+.facet__head:focus-visible {
+  outline: 2px dashed var(--terra);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* the +/− sign */
+.facet__sign {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.facet__sign::before,
+.facet__sign::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0.95rem;
+  height: 1.5px;
+  background: var(--terra);
+  transform: translate(-50%, -50%);
+  transition: transform 0.4s var(--ease-leaf), opacity 0.3s ease;
+}
+.facet__sign::after { transform: translate(-50%, -50%) rotate(90deg); }
+.facet--open .facet__sign::after { transform: translate(-50%, -50%) rotate(0deg); opacity: 0; }
+.facet--open .facet__head .facet__name {
+  font-style: italic;
+  color: var(--moss-deep);
+  font-variation-settings: 'opsz' 36, 'wght' 420, 'SOFT' 70, 'WONK' 1;
+}
+
+/* the reveal — animated via grid rows, content stays in the DOM */
+.facet__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s var(--ease-leaf);
+}
+.facet--open .facet__panel { grid-template-rows: 1fr; }
+.facet__panel > p {
+  overflow: hidden;
+  margin: 0;
+  font-family: var(--type-body);
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  font-variation-settings: 'opsz' 24, 'wght' 380;
+  padding: 0 1.6rem 0 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s ease 0.1s, transform 0.4s var(--ease-leaf) 0.1s, padding-bottom 0.45s var(--ease-leaf);
+}
+.facet--open .facet__panel > p {
+  opacity: 1;
+  transform: none;
+  padding-bottom: 1.2rem;
+}
+.facet__panel strong {
+  font-weight: inherit;
+  font-style: italic;
+  color: var(--terra);
+  font-variation-settings: 'opsz' 24, 'wght' 460, 'SOFT' 40;
+}
+
+/* recorte — final message ------------------------------------------------- */
+.recorte-quote {
+  position: relative;
+  margin: 0 0 1.75rem;
+  padding: 0 0 0 1.4rem;
+  border-left: 3px solid var(--terra);
+  font-family: var(--type-display);
+  font-style: italic;
+  font-size: clamp(1.4rem, 5vw, 1.95rem);
+  line-height: 1.22;
+  color: var(--ink);
+  font-variation-settings: 'opsz' 60, 'wght' 350, 'SOFT' 50, 'WONK' 1;
+  animation: leaf-in 0.8s 0.1s var(--ease-leaf) both;
+}
+.recorte-quote strong {
+  font-weight: inherit;
+  color: var(--terra);
+  font-variation-settings: 'opsz' 60, 'wght' 400, 'SOFT' 70, 'WONK' 1;
+}
+.recorte-quote em {
+  color: var(--moss-deep);
+  font-variation-settings: 'opsz' 60, 'wght' 380, 'SOFT' 80, 'WONK' 1;
+}
+
+.recorte-note {
+  font-family: var(--type-body);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin: 0 0 2.75rem;
+  max-width: 32rem;
+  font-variation-settings: 'opsz' 24, 'wght' 380;
+}
+.recorte-note strong {
+  font-weight: inherit;
+  font-style: normal;
+  color: var(--terra);
+}
+
+.recorte-sub {
+  font-family: var(--type-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 1.5rem;
+  font-variation-settings: 'opsz' 14, 'wght' 460;
+}
+
+.reasons {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+.reasons li {
+  padding: 0 0 1.4rem;
+  margin: 0 0 1.4rem;
+  border-bottom: 1px dashed var(--paper-edge);
+  font-family: var(--type-body);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  font-variation-settings: 'opsz' 24, 'wght' 380;
+}
+.reasons li:last-child { border-bottom: none; }
+.reasons__key {
+  display: block;
+  font-family: var(--type-display);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--moss-deep);
+  margin-bottom: 0.4rem;
+  font-variation-settings: 'opsz' 30, 'wght' 420, 'SOFT' 60, 'WONK' 1;
+}
+.reasons em {
+  font-style: italic;
+  color: var(--ink);
+  font-variation-settings: 'opsz' 24, 'wght' 420, 'SOFT' 40;
+}
+
 /* final route card -------------------------------------------------------- */
 .card-route {
   position: relative;
@@ -677,7 +900,7 @@ body::before {
 .dust {
   position: relative;
   z-index: 2;
-  padding: 1.5rem var(--gutter) 2.75rem;
+  padding: 1.5rem max(var(--gutter), env(safe-area-inset-right)) max(2.75rem, env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
   text-align: center;
   font-family: var(--type-display);
   font-size: 0.7rem;

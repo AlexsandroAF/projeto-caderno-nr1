@@ -1,12 +1,12 @@
-/* caderno · pesquisa de campo
-   tudo é anônimo. não enviamos nome, email, ip ou conteúdo de texto livre —
-   só interações (passo, opção, duração, hora, fuso). */
+/* caderno · o espelho
+   peça educativa: três sintomas, vários caminhos por trás de cada um.
+   tudo é anônimo. não enviamos nome, email, ip ou conteúdo — só interações
+   (passo, tópico aberto, duração, hora, fuso). nada disso é diagnóstico. */
 
 (() => {
   'use strict';
 
   const ENDPOINT_SUBMIT = '/api/submit';
-  const ENDPOINT_TRACK  = '/api/track';
 
   const leaves = Array.from(document.querySelectorAll('.leaf'));
   const dots   = Array.from(document.querySelectorAll('.chapter'));
@@ -18,7 +18,6 @@
     started: Date.now(),
     stepStarted: Date.now(),
     events: [],
-    answers: {},
   };
 
   // ---------------------------------------------------------------- tracking
@@ -32,90 +31,10 @@
     });
   }
 
-  function captureAnswers() {
-    document.querySelectorAll('input[type="radio"]:checked').forEach((el) => {
-      session.answers[el.name] = el.value;
-    });
-
-    const themes = Array.from(
-      document.querySelectorAll('input[name="q_themes"]:checked')
-    ).map((el) => el.value);
-    if (themes.length) session.answers.q_themes = themes;
-
-    const word = document.querySelector('input[name="q_word"]');
-    if (word && word.value.trim()) {
-      // we never store the literal word — only its length, as a soft signal
-      session.answers.q_word_len = word.value.trim().length;
-    }
-  }
-
-  // ---------------------------------------------------------------- routing
-
-  const ROUTES = {
-    ansiedade: {
-      title: 'atendimento em ansiedade',
-      body: 'um grupo dedicado a quem tem vivido inquietação, medo ou pensamento acelerado. escuta especializada, acolhimento individual.',
-      meta: 'agendamento por mensagem · gratuito · campus',
-      cta: 'agendar acolhimento',
-    },
-    sofrimento: {
-      title: 'escuta de sofrimento persistente',
-      body: 'para sentimentos de tristeza, vazio ou perda de interesse que vêm te acompanhando. profissionais que entendem o tempo desse processo.',
-      meta: 'agendamento por mensagem · gratuito · campus',
-      cta: 'agendar acolhimento',
-    },
-    grupo: {
-      title: 'conversas em grupo',
-      body: 'encontros pequenos, com mediação, sobre vínculos, solidão e estar com outros. quartas-feiras, 19h, no campus.',
-      meta: 'sem inscrição · entrada e saída livres',
-      cta: 'ver próximos encontros',
-    },
-    sono: {
-      title: 'oficina de sono e cansaço',
-      body: 'um encontro curto sobre rotinas, descanso e o que tem te tirado as forças. prático, sem patologizar.',
-      meta: 'oficinas mensais · gratuito · campus',
-      cta: 'ver próxima oficina',
-    },
-    plantao: {
-      title: 'plantão psicológico',
-      body: 'um espaço de escuta, gratuito, sem agendamento. atende em horário comercial no campus — basta chegar.',
-      meta: 'sem agendamento · seg a sex · 9h às 17h',
-      cta: 'ver localização',
-    },
-  };
-
-  function determineRoute() {
-    const a = session.answers;
-    const themes = a.q_themes || [];
-    const mood = a.q_mood;
-
-    const has = (...keys) => keys.some((k) => themes.includes(k));
-
-    let key = 'plantao';
-
-    if (has('ansiedade', 'medo') || mood === 'inquieto') {
-      key = 'ansiedade';
-    } else if (has('tristeza', 'vazio', 'interesse', 'sentido') || mood === 'apagado') {
-      key = 'sofrimento';
-    } else if (has('relacoes', 'solidao')) {
-      key = 'grupo';
-    } else if (has('cansaco', 'insonia')) {
-      key = 'sono';
-    }
-
-    const route = ROUTES[key];
-    document.getElementById('route-title').textContent = route.title;
-    document.getElementById('route-body').textContent  = route.body;
-    document.getElementById('route-meta').textContent  = route.meta;
-    const cta = document.getElementById('route-cta');
-    cta.querySelector('span').textContent = route.cta;
-    cta.dataset.route = key;
-
-    track('route_shown', { route: key });
-    return key;
-  }
-
   // ---------------------------------------------------------------- submit
+  // backend inalterado: aceita sessões anônimas. aqui não há respostas de
+  // questionário nem rota — apenas o registro de engajamento (quais espelhos
+  // foram lidos, quais tópicos abertos), sempre sem identificar a pessoa.
 
   function buildPayload() {
     const now = new Date();
@@ -123,23 +42,24 @@
       v: 1,
       duration_ms: Date.now() - session.started,
       events: session.events,
-      answers: session.answers,
+      answers: {},
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       hour: now.getHours(),
       weekday: now.getDay(),
       lang: navigator.language || 'pt-BR',
       viewport: { w: window.innerWidth, h: window.innerHeight },
-      // intentionally no UA, no IP, no fingerprint
+      // intencionalmente sem UA, sem IP, sem fingerprint
     };
   }
 
+  let submitted = false;
   function submitSession() {
-    // mark this device as having completed once — used to reveal the
-    // coletivo link on subsequent visits to the welcome screen.
+    if (submitted) return;
+    submitted = true;
+
     try { localStorage.setItem('caderno_completed_at', String(Date.now())); } catch (_) {}
 
-    const payload = buildPayload();
-    const body = JSON.stringify(payload);
+    const body = JSON.stringify(buildPayload());
 
     if (navigator.sendBeacon) {
       try {
@@ -154,7 +74,7 @@
       headers: { 'Content-Type': 'application/json' },
       body,
       keepalive: true,
-    }).catch(() => { /* best-effort, anonymous */ });
+    }).catch(() => { /* best-effort, anônimo */ });
   }
 
   // ---------------------------------------------------------------- nav
@@ -183,45 +103,21 @@
 
     if (!isInitial) {
       track('step_enter');
-      // gentle scroll to top, no focus theft
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (index === total - 1) {
-      determineRoute();
-      submitSession();
-    }
+    // chegou na mensagem final — registra a leitura (anônima)
+    if (index === total - 1) submitSession();
   }
 
-  function validateStep(idx) {
-    const leaf = leaves[idx];
-    if (idx === 0 || idx === total - 1) return true; // welcome / final
-    if (idx === 2 || idx === 4) return true;          // multi-select / text are optional
-
-    const radios = leaf.querySelectorAll('input[type="radio"]');
-    if (radios.length) {
-      const checked = leaf.querySelector('input[type="radio"]:checked');
-      if (!checked) {
-        const list = leaf.querySelector('.ink-list');
-        if (list) {
-          list.classList.remove('shake');
-          // force reflow to restart animation
-          void list.offsetWidth;
-          list.classList.add('shake');
-        }
-        track('validate_fail', { reason: 'no_radio' });
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function resetAnswers() {
-    document.querySelectorAll('input').forEach((el) => {
-      if (el.type === 'radio' || el.type === 'checkbox') el.checked = false;
-      else if (el.type === 'text') el.value = '';
+  function resetMirror() {
+    // fecha todos os tópicos abertos
+    document.querySelectorAll('.facet--open').forEach((li) => {
+      li.classList.remove('facet--open');
+      const btn = li.querySelector('.facet__head');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
     });
-    session.answers = {};
+    submitted = false;
     session.events = [];
     session.started = Date.now();
     session.stepStarted = Date.now();
@@ -230,6 +126,19 @@
   // ---------------------------------------------------------------- events
 
   document.addEventListener('click', (ev) => {
+    // tópico clicável (abre/fecha a explicação)
+    const head = ev.target.closest('.facet__head');
+    if (head) {
+      const li   = head.closest('.facet');
+      const open = li.classList.toggle('facet--open');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      track(open ? 'facet_open' : 'facet_close', {
+        facet: (head.querySelector('.facet__name') || {}).textContent || '',
+      });
+      return;
+    }
+
+    // navegação
     const trigger = ev.target.closest('[data-action]');
     if (trigger) {
       const action = trigger.dataset.action;
@@ -238,59 +147,27 @@
       }
 
       if (action === 'next') {
-        if (!validateStep(current)) return;
-        captureAnswers();
         showStep(current + 1);
       } else if (action === 'prev') {
         showStep(current - 1);
       } else if (action === 'restart') {
         track('restart');
-        resetAnswers();
+        resetMirror();
         showStep(0, true);
       }
     }
 
-    // generic CTA tracking
+    // rastreio genérico de CTA (links marcados)
     const cta = ev.target.closest('[data-track]');
     if (cta) {
-      track('cta_click', {
-        kind: cta.dataset.track,
-        route: cta.dataset.route,
-      });
-    }
-  });
-
-  document.addEventListener('change', (ev) => {
-    const el = ev.target;
-    if (el.matches('input[type="radio"], input[type="checkbox"]')) {
-      track('option_pick', {
-        field: el.name,
-        value: el.value,
-        checked: el.checked,
-      });
-    }
-  });
-
-  document.addEventListener('focusin', (ev) => {
-    if (ev.target.matches('input[type="text"]')) {
-      track('text_focus', { field: ev.target.name });
-    }
-  });
-
-  document.addEventListener('focusout', (ev) => {
-    if (ev.target.matches('input[type="text"]')) {
-      track('text_blur', {
-        field: ev.target.name,
-        len: ev.target.value.trim().length,
-      });
+      track('cta_click', { kind: cta.dataset.track });
     }
   });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       track('hidden');
-      // best-effort flush of partial session if the user wanders off mid-flow
-      if (current > 0 && current < total - 1) submitSession();
+      if (current > 0) submitSession();
     } else {
       track('visible');
     }
@@ -298,15 +175,14 @@
 
   window.addEventListener('pagehide', () => {
     track('pagehide');
-    if (current < total - 1) submitSession();
+    if (current > 0) submitSession();
   });
 
-  // -- soft keyboard nav: Enter advances on radio/checkbox steps --
+  // -- teclado: Enter avança; espaço/Enter no tópico já é nativo do <button> --
   document.addEventListener('keydown', (ev) => {
     if (ev.key !== 'Enter') return;
     const tag = ev.target.tagName;
-    if (tag === 'INPUT' && ev.target.type === 'text') return; // free typing
-    if (tag === 'BUTTON' || tag === 'A') return;
+    if (tag === 'BUTTON' || tag === 'A') return; // deixa o clique nativo agir
     const nextBtn = leaves[current].querySelector('[data-action="next"]');
     if (nextBtn) {
       ev.preventDefault();
@@ -319,11 +195,11 @@
   showStep(0, true);
   track('arrived');
 
-  // returning visitor? surface the coletivo link on the welcome screen.
+  // já passou por aqui antes? revela o link do coletivo na acolhida.
   try {
     if (localStorage.getItem('caderno_completed_at')) {
       const ret = document.querySelector('.welcome__return');
       if (ret) ret.hidden = false;
     }
-  } catch (_) { /* storage may be disabled — silent fallback */ }
+  } catch (_) { /* storage pode estar desativado — fallback silencioso */ }
 })();
