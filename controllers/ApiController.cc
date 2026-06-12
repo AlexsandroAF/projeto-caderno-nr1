@@ -9,6 +9,8 @@
 #include <chrono>
 #include <cmath>
 #include <ctime>
+#include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -18,36 +20,13 @@ using namespace drogon::orm;
 
 namespace
 {
-// Stable-ordered label maps. Keys must match what the frontend sends.
-const std::vector<std::pair<std::string, std::string>> MOOD_LABELS = {
-    {"leve",     "leve"},
-    {"estavel",  "estável"},
-    {"inquieto", "inquieto"},
-    {"pesado",   "pesado"},
-    {"apagado",  "apagado"},
-};
-
-const std::vector<std::pair<std::string, std::string>> THEME_LABELS = {
-    {"ansiedade", "ansiedade"},
-    {"tristeza",  "tristeza"},
-    {"cansaco",   "cansaço"},
-    {"insonia",   "insônia"},
-    {"vazio",     "sensação de vazio"},
-    {"irritacao", "irritação"},
-    {"medo",      "medo"},
-    {"solidao",   "solidão"},
-    {"relacoes",  "dificuldade nas relações"},
-    {"foco",      "falta de foco"},
-    {"interesse", "perda de interesse"},
-    {"sentido",   "falta de sentido"},
-};
-
-const std::vector<std::pair<std::string, std::string>> ROUTE_LABELS = {
-    {"plantao",    "plantão psicológico"},
-    {"ansiedade",  "atendimento em ansiedade"},
-    {"sofrimento", "sofrimento persistente"},
-    {"grupo",      "conversas em grupo"},
-    {"sono",       "oficina de sono"},
+// Os três espelhos (+ o recorte), na ordem das páginas. O índice na lista + 1
+// corresponde ao `step` que o frontend emite em step_enter (1=sozinho … 4=recorte).
+const std::vector<std::pair<std::string, std::string>> MIRROR_STEPS = {
+    {"sozinho", "prefiro ficar sozinho(a)"},
+    {"emocoes", "não sinto as emoções como os outros"},
+    {"confiar", "dificuldade em confiar ou se abrir"},
+    {"recorte", "chegaram ao recorte"},
 };
 
 int64_t nowMs()
@@ -218,12 +197,10 @@ void ApiController::stats(const HttpRequestPtr& /*req*/,
     Json::Value out;
 
     try {
-        // total = completed sessions only (those with a route assigned)
+        // total = sessões registradas (visitantes que passaram da acolhida)
         int64_t total = 0;
         {
-            auto rows = db->execSqlSync(
-                "SELECT COUNT(*) AS n FROM sessions "
-                "WHERE route IS NOT NULL AND route != ''");
+            auto rows = db->execSqlSync("SELECT COUNT(*) AS n FROM sessions");
             if (!rows.empty()) total = rows[0]["n"].as<int64_t>();
         }
         out["total"] = static_cast<Json::Int64>(total);
@@ -245,59 +222,74 @@ void ApiController::stats(const HttpRequestPtr& /*req*/,
                                                static_cast<double>(total)));
         };
 
-        // mood — preserve natural light→heavy order
+        // mirrors — quantas sessões alcançam cada espelho (funil por step_enter)
         {
-            std::unordered_map<std::string, int64_t> counts;
+            std::unordered_map<int, int64_t> perStep;
             auto rows = db->execSqlSync(
-                "SELECT q_mood, COUNT(*) AS n FROM sessions "
-                "WHERE route IS NOT NULL AND route != '' "
-                "  AND q_mood IS NOT NULL AND q_mood != '' "
-                "GROUP BY q_mood");
+                "SELECT step, COUNT(DISTINCT session_id) AS n FROM session_events "
+                "WHERE event = 'step_enter' GROUP BY step");
             for (const auto& r : rows) {
-                counts[r["q_mood"].as<std::string>()] = r["n"].as<int64_t>();
+                perStep[r["step"].as<int>()] = r["n"].as<int64_t>();
             }
             Json::Value arr(Json::arrayValue);
-            for (const auto& [key, label] : MOOD_LABELS) {
-                int64_t n = counts.count(key) ? counts[key] : 0;
+            int stepIdx = 1;  // 1=sozinho, 2=emoções, 3=confiar, 4=recorte
+            for (const auto& [key, label] : MIRROR_STEPS) {
+                int64_t n = perStep.count(stepIdx) ? perStep[stepIdx] : 0;
                 Json::Value row;
                 row["key"]   = key;
                 row["label"] = label;
                 row["pct"]   = pct(n);
                 arr.append(row);
+                ++stepIdx;
             }
-            out["mood"] = arr;
+            out["mirrors"] = arr;
         }
 
-        // themes — sorted desc by SQL
+        // facets — leituras (transtornos) mais abertas; % de pessoas que abriram.
+        // o nome do transtorno vem no payload do evento facet_open.
         {
-            std::unordered_map<std::string, std::string> labelMap;
-            for (const auto& [k, l] : THEME_LABELS) labelMap[k] = l;
             auto rows = db->execSqlSync(
-                "SELECT t.theme AS theme, COUNT(DISTINCT t.session_id) AS n "
-                "FROM session_themes t "
-                "JOIN sessions s ON s.id = t.session_id "
-                "WHERE s.route IS NOT NULL AND s.route != '' "
-                "GROUP BY t.theme ORDER BY n DESC");
-            Json::Value arr(Json::arrayValue);
+                "SELECT session_id, payload FROM session_events "
+                "WHERE event = 'facet_open'");
+            std::unordered_map<std::string, std::set<int64_t>> bySession;
+            Json::CharReaderBuilder rb;
             for (const auto& r : rows) {
-                std::string theme = r["theme"].as<std::string>();
-                int64_t n         = r["n"].as<int64_t>();
+                std::string p = r["payload"].as<std::string>();
+                int64_t sid   = r["session_id"].as<int64_t>();
+                Json::Value ev;
+                std::string errs;
+                std::unique_ptr<Json::CharReader> reader(rb.newCharReader());
+                if (reader->parse(p.c_str(), p.c_str() + p.size(), &ev, &errs)) {
+                    std::string facet = ev.get("facet", "").asString();
+                    if (!facet.empty()) bySession[facet].insert(sid);
+                }
+            }
+            struct Item { std::string label; int64_t n; };
+            std::vector<Item> items;
+            items.reserve(bySession.size());
+            for (const auto& [facet, ids] : bySession) {
+                std::string label = facet;
+                if (label.rfind("No ", 0) == 0) label = label.substr(3);  // tira "No "
+                items.push_back({label, static_cast<int64_t>(ids.size())});
+            }
+            std::sort(items.begin(), items.end(),
+                      [](const Item& a, const Item& b) { return a.n > b.n; });
+            Json::Value arr(Json::arrayValue);
+            for (const auto& it : items) {
                 Json::Value row;
-                row["label"] = labelMap.count(theme) ? labelMap[theme] : theme;
-                row["pct"]   = pct(n);
+                row["label"] = it.label;
+                row["pct"]   = pct(it.n);
                 arr.append(row);
             }
-            out["themes"] = arr;
+            out["facets"] = arr;
         }
 
-        // hours — 24-bin raw counts
+        // hours — 24-bin, todas as sessões
         {
             std::vector<int64_t> hours(24, 0);
             auto rows = db->execSqlSync(
                 "SELECT hour, COUNT(*) AS n FROM sessions "
-                "WHERE route IS NOT NULL AND route != '' "
-                "  AND hour BETWEEN 0 AND 23 "
-                "GROUP BY hour");
+                "WHERE hour BETWEEN 0 AND 23 GROUP BY hour");
             for (const auto& r : rows) {
                 int h = r["hour"].as<int>();
                 if (h >= 0 && h < 24) hours[h] = r["n"].as<int64_t>();
@@ -305,35 +297,6 @@ void ApiController::stats(const HttpRequestPtr& /*req*/,
             Json::Value arr(Json::arrayValue);
             for (auto v : hours) arr.append(static_cast<Json::Int64>(v));
             out["hours"] = arr;
-        }
-
-        // routes — sort desc by pct, always include the 5 known routes
-        {
-            std::unordered_map<std::string, int64_t> counts;
-            auto rows = db->execSqlSync(
-                "SELECT route, COUNT(*) AS n FROM sessions "
-                "WHERE route IS NOT NULL AND route != '' GROUP BY route");
-            for (const auto& r : rows) {
-                counts[r["route"].as<std::string>()] = r["n"].as<int64_t>();
-            }
-            struct Item { std::string key, label; int p; };
-            std::vector<Item> items;
-            items.reserve(ROUTE_LABELS.size());
-            for (const auto& [key, label] : ROUTE_LABELS) {
-                int64_t n = counts.count(key) ? counts[key] : 0;
-                items.push_back({key, label, pct(n)});
-            }
-            std::sort(items.begin(), items.end(),
-                      [](const Item& a, const Item& b) { return a.p > b.p; });
-            Json::Value arr(Json::arrayValue);
-            for (const auto& it : items) {
-                Json::Value row;
-                row["key"]   = it.key;
-                row["label"] = it.label;
-                row["pct"]   = it.p;
-                arr.append(row);
-            }
-            out["routes"] = arr;
         }
     }
     catch (const DrogonDbException& ex) {

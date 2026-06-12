@@ -10,32 +10,26 @@
   const DEMO = {
     total: 247,
     updated: new Date().toISOString(),
-    mood: [
-      { key: 'leve',     label: 'leve',     pct: 18 },
-      { key: 'estavel',  label: 'estável',  pct: 31 },
-      { key: 'inquieto', label: 'inquieto', pct: 24 },
-      { key: 'pesado',   label: 'pesado',   pct: 14 },
-      { key: 'apagado',  label: 'apagado',  pct: 13 },
+    // funil dos três espelhos (+ recorte): % das pessoas que alcançam cada um
+    mirrors: [
+      { key: 'sozinho', label: 'prefiro ficar sozinho(a)',              pct: 100 },
+      { key: 'emocoes', label: 'não sinto as emoções como os outros',   pct: 86 },
+      { key: 'confiar', label: 'dificuldade em confiar ou se abrir',    pct: 71 },
+      { key: 'recorte', label: 'chegaram ao recorte',                   pct: 58 },
     ],
-    themes: [
-      { label: 'ansiedade',         pct: 44 },
-      { label: 'cansaço',           pct: 38 },
-      { label: 'tristeza',          pct: 27 },
-      { label: 'insônia',           pct: 22 },
-      { label: 'falta de foco',     pct: 19 },
-      { label: 'medo',              pct: 18 },
-      { label: 'sensação de vazio', pct: 16 },
-      { label: 'irritação',         pct: 14 },
+    // leituras (transtornos) mais abertas — % de pessoas que abriram cada uma
+    facets: [
+      { label: 'Esquizóide',                pct: 54 },
+      { label: 'Borderline',                pct: 41 },
+      { label: 'Evitativo (ansioso)',       pct: 33 },
+      { label: 'Antissocial (psicopatia)',  pct: 29 },
+      { label: 'Narcisista',                pct: 24 },
+      { label: 'Depressivo',                pct: 21 },
+      { label: 'Paranóide',                 pct: 18 },
+      { label: 'Esquizotípico',             pct: 12 },
     ],
     // 24 valores — chegada por hora, com pico no fim da noite
     hours: [3, 1, 1, 0, 0, 1, 2, 4, 6, 7, 8, 9, 8, 7, 6, 7, 8, 10, 12, 14, 17, 20, 16, 9],
-    routes: [
-      { key: 'plantao',    label: 'plantão psicológico',      pct: 32 },
-      { key: 'ansiedade',  label: 'atendimento em ansiedade', pct: 24 },
-      { key: 'sofrimento', label: 'sofrimento persistente',   pct: 18 },
-      { key: 'grupo',      label: 'conversas em grupo',       pct: 14 },
-      { key: 'sono',       label: 'oficina de sono',          pct: 12 },
-    ],
   };
 
   // ----------------------------------------------------------------- helpers
@@ -161,14 +155,14 @@
     updated.textContent = 'atualizado ' + fmtDate(data.updated);
     if (data.updated) updated.dateTime = data.updated;
 
-    const moodWrap = document.getElementById('bars-mood');
-    (data.mood || []).forEach((m, i) =>
-      moodWrap.appendChild(makeBar(m, 'var(--moss-deep)', 80 * i))
+    const mirrorsWrap = document.getElementById('bars-mirrors');
+    (data.mirrors || []).forEach((m, i) =>
+      mirrorsWrap.appendChild(makeBar(m, 'var(--moss-deep)', 80 * i))
     );
 
-    const themesWrap = document.getElementById('top-themes');
-    (data.themes || []).forEach((t, i) =>
-      themesWrap.appendChild(makeTop(t, i + 1))
+    const facetsWrap = document.getElementById('top-facets');
+    (data.facets || []).forEach((f, i) =>
+      facetsWrap.appendChild(makeTop(f, i + 1))
     );
 
     const ribbon = document.getElementById('ribbon-hours');
@@ -176,11 +170,6 @@
     const max = hours.length ? Math.max(...hours) : 0;
     hours.forEach((h, i) =>
       ribbon.appendChild(makeTick(h, max, i, 25 * i))
-    );
-
-    const routesWrap = document.getElementById('bars-routes');
-    (data.routes || []).forEach((r, i) =>
-      routesWrap.appendChild(makeBar(r, 'var(--terra)', 80 * i))
     );
   }
 
